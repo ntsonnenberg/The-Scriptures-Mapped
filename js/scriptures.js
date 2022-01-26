@@ -26,6 +26,7 @@ const Scriptures = (function () {
     let ajax;
     let cacheBooks;
     let init;
+    let testGeoplaces;
 
      /*-------------------------------------------------------
      *                   PRIVATE METHODS
@@ -96,10 +97,64 @@ const Scriptures = (function () {
             }
         );
     };
+
+    testGeoplaces = function () {
+        const similar = function (number1, number2) {
+            return Math.abs(number1 - number2 < 0.0000001);
+        }
+
+        const matchingELement = function (array, object) {
+            let match = null;
+
+            array.forEach(element => {
+                if (similar(element.latitude, object.latitude) 
+                && similar(element.longitude, object.longitude)) {
+                    if (match === null) {
+                        match = element;
+                    }
+                }
+            });
+
+            return match;
+        };
+
+        const makeUniqueGeoPlaces = function (geoPlaces) {
+            const uniqueGeoPlaces = [];
+
+            geoPlaces.forEach(geoPlace => {
+                const matchedElement = matchingELement(uniqueGeoPlaces, geoPlace);
+
+                if (!matchedElement) {
+                    uniqueGeoPlaces.push(geoPlace);
+                } else {
+                    if (!matchedElement.name.toLowerCase().includes(geoPlace.name.toLowerCase())) {
+                        matchedElement.name = matchedElement.name + ", " + geoPlace.name;
+                    }
+                }
+            });
+
+            console.log(uniqueGeoPlaces);
+
+            return uniqueGeoPlaces;
+        };
+
+        makeUniqueGeoPlaces([
+            { id: 536, name: "Hazor", latitude: 33.017181, longitude: 35.568048 },
+            { id: 536, name: "Hazor", latitude: 33.017181, longitude: 35.568048 },
+            { id: 536, name: "Hazor", latitude: 33.017181, longitude: 35.568048 },
+            { id: 822, name: "Mount Halak", latitude: 30.916667, longitude: 34.833333 },
+            { id: 1021, name: "Seir", latitude: 30.734691, longitude: 35.606250 },
+            { id: 129, name: "Baal-gad", latitude: 33.416159, longitude: 35.857256 },
+            { id: 1190, name: "Valley of Lebanon", latitude: 33.416519, longitude: 35.857256 },
+            { id: 824, name: "Mount Hermon", latitude: 33.416159, longitude: 35.857256 },
+        ]);
+    };
+
     /*-------------------------------------------------------
      *                   PUBLIC API
      */
     return {
-        init: init
+        init: init,
+        testGeoplaces: testGeoplaces
     };
 }());
