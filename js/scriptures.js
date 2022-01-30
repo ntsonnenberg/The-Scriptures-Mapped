@@ -13,6 +13,18 @@ const Scriptures = (function () {
     /*-------------------------------------------------------
      *                   CONSTANTS
      */
+    const BOTTOM_PADDING = '<br /><br />';
+    const CLASS_BOOKS = 'books';
+    const CALSS_VOLUMES = 'volume';
+    const DIV_SCRIPTURES_NAVIGATOR = 'scripnav';
+    const DIV_SCRIPTURES = 'scriptures';
+    const REQUEST_GET = 'GET';
+    const REQUEST_STATUS_OK = 200;
+    const REQUEST_STATUS_ERROR = 400;
+    const TAG_HEADERS = 'h5';
+    const URL_BASE = 'https://scriptures.byu.edu/';
+    const USL_BOOKS = `${URL_BASE}mapscrip/model/books.php`;
+    const URL_VOLUMES = `${URL_BASE}mapscrip/model/volumes.php`;
 
      /*-------------------------------------------------------
      *                   PRIVATE VARIABLES
@@ -27,16 +39,18 @@ const Scriptures = (function () {
     let cacheBooks;
     let init;
     let testGeoplaces;
+    let onHashChanged;
 
      /*-------------------------------------------------------
      *                   PRIVATE METHODS
      */
     ajax = function (url, successCallback, failureCallback) {
         let request = new XMLHttpRequest();
-        request.open('GET', url, true);
+
+        request.open(REQUEST_GET, url, true);
 
         request.onload = function() {
-            if (this.status >= 200 && this.status < 400) {
+            if (this.status >= REQUEST_STATUS_OK && this.status < REQUEST_STATUS_ERROR) {
                 // Success!
                 let data = JSON.parse(this.response);
 
@@ -150,11 +164,16 @@ const Scriptures = (function () {
         ]);
     };
 
+    onHashChanged = function () {
+        console.log(window.location.hash);
+    };
+
     /*-------------------------------------------------------
      *                   PUBLIC API
      */
     return {
-        init: init,
-        testGeoplaces: testGeoplaces
+        init,
+        testGeoplaces,
+        onHashChanged
     };
 }());
