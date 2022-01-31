@@ -6,10 +6,14 @@
  * DESCRIPTION: Front-end JavaScript code for The Scriptures, Mapped.
  *              IS 542, Winter 2022, BYU.
  */
+/*jslint
+    browser, long
+*/
 /*property
-    books, classKey, content, forEach, hash, href, id, init, location, log,
-    maxBoodId, minBookId, onHashChanged, onerror, onload, open, parse, push,
-    response, sent, status
+    books, classKey, content, forEach, fullName, getElementById, gridName, hash, 
+    href, id, init, innerHTML, length, log, maxBookId, minBookId, numChapters,
+    onHashChanged, onerror, onload, open, parse, push, response, sent, slice, 
+    split, status
 */
 
 const Scriptures = (function () {
@@ -20,7 +24,8 @@ const Scriptures = (function () {
      */
     const BOTTOM_PADDING = '<br /><br />';
     const CLASS_BOOKS = 'books';
-    const CALSS_VOLUMES = 'volume';
+    const CLASS_BUTTON = 'button';
+    const CLASS_VOLUME = 'volume';
     const DIV_SCRIPTURES_NAVIGATOR = 'scripnav';
     const DIV_SCRIPTURES = 'scriptures';
     const REQUEST_GET = 'GET';
@@ -42,6 +47,8 @@ const Scriptures = (function () {
      */
     let ajax;
     let bookChapterValid;
+    let booksGrid;
+    let booksGridContent;
     let cacheBooks;
     let htmlAnchor;
     let htmlDiv;
@@ -54,6 +61,7 @@ const Scriptures = (function () {
     let navigateHome;
     let onHashChanged;
     let testGeoplaces;
+    let volumesGridContent;
 
      /*-------------------------------------------------------
      *                   PRIVATE METHODS
@@ -96,6 +104,28 @@ const Scriptures = (function () {
         return true;
     };
 
+    booksGrid = function (volume) {
+        return htmlDiv({
+            classKey: CLASS_BOOKS,
+            content: booksGridContent(volume)
+        });
+    };
+
+    booksGridContent = function (volume) {
+        let gridContent = '';
+
+        volume.books.forEach(function (book) {
+            gridContent += htmlLink({
+                classKey: CLASS_BUTTON,
+                id: book.id,
+                href: `#${volume.id}:${book.id}`,
+                content: book.gridName
+            });
+        });
+
+        return gridContent;
+    };
+
     cacheBooks = function (callback) {
         volumes.forEach(volume => {
             let volumeBooks = [];
@@ -115,7 +145,7 @@ const Scriptures = (function () {
     };
 
     htmlAnchor = function (volume) {
-        return `<a name="v${volume.id} />`;   
+        return `<a name="v${volume.id}"></a>`;   
     };
     
     htmlDiv = function (parameters) {
@@ -206,12 +236,11 @@ const Scriptures = (function () {
     };
 
     navigateHome = function (volumeId) {
-        document.getElementById(DIV_SCRIPTURES).innerHTML = 
-        "<div>Old Testament</div>" +
-        "<div>New Testament</div>" +
-        "<div>Book of Mormon</div>" +
-        "<div>Doctrine and Covenants</div>" +
-        "<div>Pearl of Great Price</div>" + volumeId;
+        document.getElementById(DIV_SCRIPTURES).innerHTML = htmlDiv({
+            id: DIV_SCRIPTURES_NAVIGATOR,
+            content: volumesGridContent(volumeId)
+        });
+
     };
 
     onHashChanged = function () {
@@ -302,6 +331,23 @@ const Scriptures = (function () {
             { id: 1190, name: "Valley of Lebanon", latitude: 33.416519, longitude: 35.857256 },
             { id: 824, name: "Mount Hermon", latitude: 33.416159, longitude: 35.857256 },
         ]);
+    };
+
+    volumesGridContent = function (volumeId) {
+        let gridContent = '';
+
+        volumes.forEach(function (volume) {
+            if (volumeId === undefined || volumeId === volume.id) {
+                gridContent += htmlDiv({
+                    classKey: CLASS_VOLUME,
+                    content: htmlAnchor(volume) + htmlElement(TAG_HEADERS, volume.fullName)
+                });
+
+                gridContent += booksGrid(volume);
+            }
+        });
+
+        return gridContent;
     };
 
     /*-------------------------------------------------------
