@@ -24,14 +24,15 @@ const Scriptures = (function () {
      */
     const BOTTOM_PADDING = '<br /><br />';
     const CLASS_BOOKS = 'books';
-    const CLASS_BUTTON = 'button';
+    const CLASS_CHAPTER = 'chapter';
+    const CLASS_BUTTON = 'btn';
     const CLASS_VOLUME = 'volume';
     const DIV_SCRIPTURES_NAVIGATOR = 'scripnav';
     const DIV_SCRIPTURES = 'scriptures';
     const REQUEST_GET = 'GET';
     const REQUEST_STATUS_OK = 200;
     const REQUEST_STATUS_ERROR = 400;
-    const TAG_HEADERS = 'h5';
+    const TAG_HEADER5 = 'h5';
     const URL_BASE = 'https://scriptures.byu.edu/';
     const USL_BOOKS = `${URL_BASE}mapscrip/model/books.php`;
     const URL_VOLUMES = `${URL_BASE}mapscrip/model/volumes.php`;
@@ -50,6 +51,8 @@ const Scriptures = (function () {
     let booksGrid;
     let booksGridContent;
     let cacheBooks;
+    let chaptersGrid;
+    let chaptersGridContent;
     let htmlAnchor;
     let htmlDiv;
     let htmlElement;
@@ -144,6 +147,33 @@ const Scriptures = (function () {
         }
     };
 
+    chaptersGrid = function (book) {
+        return htmlDiv({
+            classKey: CLASS_VOLUME,
+            content: htmlElement(TAG_HEADER5, book.fullName)
+        }) + htmlDiv({
+            classKey: CLASS_BOOKS,
+            content: chaptersGridContent(book)
+        });
+    };
+
+    chaptersGridContent = function (book) {
+        let gridContent = "";
+        let chapter = 1;
+
+        while (chapter <= book.numChapters) {
+            gridContent += htmlLink({
+                classKey: `${CLASS_BUTTON} ${CLASS_CHAPTER}`,
+                id: chapter,
+                href: `#0:${book.id}:${chapter}`,
+                content: chapter
+            });
+            chapter += 1;
+        }
+
+        return gridContent;
+    };
+
     htmlAnchor = function (volume) {
         return `<a name="v${volume.id}"></a>`;   
     };
@@ -228,7 +258,16 @@ const Scriptures = (function () {
     };
 
     navigateBook = function (bookId) {
-        console.log('navigateBook ' + bookId);
+        let book = books[bookId];
+
+        if (book.numChapters <= 1) {
+            navigateChapter(bookId, book.numChapters);
+        } else {
+            document.getElementById(DIV_SCRIPTURES).innerHTML = htmlDiv({
+                id: DIV_SCRIPTURES_NAVIGATOR,
+                content: chaptersGrid(book)
+            });
+        }
     };
 
     navigateChapter = function (bookId, chapter) {
@@ -340,7 +379,7 @@ const Scriptures = (function () {
             if (volumeId === undefined || volumeId === volume.id) {
                 gridContent += htmlDiv({
                     classKey: CLASS_VOLUME,
-                    content: htmlAnchor(volume) + htmlElement(TAG_HEADERS, volume.fullName)
+                    content: htmlAnchor(volume) + htmlElement(TAG_HEADER5, volume.fullName)
                 });
 
                 gridContent += booksGrid(volume);
