@@ -34,7 +34,8 @@ const Scriptures = (function () {
     const REQUEST_STATUS_ERROR = 400;
     const TAG_HEADER5 = 'h5';
     const URL_BASE = 'https://scriptures.byu.edu/';
-    const USL_BOOKS = `${URL_BASE}mapscrip/model/books.php`;
+    const URL_BOOKS = `${URL_BASE}mapscrip/model/books.php`;
+    const URL_SCRIPTURES = `${URL_BASE}mapscrip/mapgetscrip.php`;
     const URL_VOLUMES = `${URL_BASE}mapscrip/model/volumes.php`;
 
      /*-------------------------------------------------------
@@ -53,6 +54,9 @@ const Scriptures = (function () {
     let cacheBooks;
     let chaptersGrid;
     let chaptersGridContent;
+    let encodedScripturesUrlParameters;
+    let getScripturesCallback;
+    let getScripturesFailure;
     let htmlAnchor;
     let htmlDiv;
     let htmlElement;
@@ -62,22 +66,28 @@ const Scriptures = (function () {
     let navigateBook;
     let navigateChapter;
     let navigateHome;
+    let nextChapter;
     let onHashChanged;
+    let previousChapter;
     let testGeoplaces;
+    let titleForBookChapter;
     let volumesGridContent;
 
      /*-------------------------------------------------------
      *                   PRIVATE METHODS
      */
-    ajax = function (url, successCallback, failureCallback) {
+    ajax = function (url, successCallback, failureCallback, skipJsonParse) {
         let request = new XMLHttpRequest();
 
         request.open(REQUEST_GET, url, true);
 
         request.onload = function() {
             if (this.status >= REQUEST_STATUS_OK && this.status < REQUEST_STATUS_ERROR) {
-                // Success!
-                let data = JSON.parse(this.response);
+                let data = (
+                    skipJsonParse 
+                    ? request.response 
+                    : JSON.parse(request.response)
+                );
 
                 if (typeof successCallback === "function") {
                     successCallback(data);
@@ -145,6 +155,9 @@ const Scriptures = (function () {
         if (typeof callback === "function") {
             callback();
         }
+
+        console.log(nextChapter(101, 1));
+        console.log(previousChapter(101, 1))
     };
 
     chaptersGrid = function (book) {
@@ -172,6 +185,32 @@ const Scriptures = (function () {
         }
 
         return gridContent;
+    };
+
+    encodedScripturesUrlParameters = function (bookId, chapter, verses, isJst) {
+        if (bookId !== undefined && chapter !== undefined) {
+            let options = "";
+
+            if (verses !== undefined) {
+                options += verses;
+            }
+
+            if (isJst !== undefined) {
+                options += "&jst=JST";
+            }
+            
+            return `${URL_SCRIPTURES}?book=${bookId}&chap=${chapter}&verses${options}`
+        }
+    };
+
+    getScripturesCallback = function (chapterHtml) {
+        document.getElementById(DIV_SCRIPTURES).innerHTML = chapterHtml;
+
+        // NEEDSWORK: setupMarkers()
+    };
+
+    getScripturesFailure = function () {
+        document.getElementById(DIV_SCRIPTURES).innerHTML = 'Unable to retrieve chapter contents.';
     };
 
     htmlAnchor = function (volume) {
@@ -235,7 +274,7 @@ const Scriptures = (function () {
         let booksLoaded = false;
         let volumesLoaded = false;
 
-        ajax('https://scriptures.byu.edu/mapscrip/model/books.php',
+        ajax(URL_BOOKS,
             data => {
                 books = data;
                 booksLoaded = true;
@@ -245,7 +284,7 @@ const Scriptures = (function () {
                 }
             }
         );
-        ajax('https://scriptures.byu.edu/mapscrip/model/volumes.php',
+        ajax(URL_VOLUMES,
             data => {
                 volumes = data;
                 volumesLoaded = true;
@@ -271,7 +310,7 @@ const Scriptures = (function () {
     };
 
     navigateChapter = function (bookId, chapter) {
-        console.log('navigateChapter ' + bookId + ', ' + chapter);
+        ajax(encodedScripturesUrlParameters(bookId, chapter), getScripturesCallback, getScripturesFailure, true);
     };
 
     navigateHome = function (volumeId) {
@@ -281,6 +320,36 @@ const Scriptures = (function () {
         });
 
     };
+
+    nextChapter = function (bookId, chapter) {
+        let book = books[bookId];
+
+        if (book !== undefined) {
+            if (chapter < book.numChapters) {
+                return [
+                    bookId,
+                    chapter + 1,
+                    titleForBookChapter(book, chapter + 1)
+                ];
+            }
+
+            let nextBook = books[bookId + 1];
+
+            if (nextBook !== undefined) {
+                let nextChapterValue = 0;
+
+                if (nextBook.numChapters > 0) {
+                    nextChapterValue = 1;
+                }
+
+                return [
+                    nextBook.id,
+                    nextChapterValue,
+                    titleForBookChapter(nextBook, nextChapterValue)
+                ];
+            }
+        }
+    }
 
     onHashChanged = function () {
         let ids = [];
@@ -319,6 +388,36 @@ const Scriptures = (function () {
             }
         }
     };
+
+    previousChapter = function (bookId, chapter) {
+        let book = books[bookId];
+
+        if (book !== undefined) {
+            if (chapter < book.numChapters) {
+                return [
+                    bookId,
+                    chapter - 1,
+                    titleForBookChapter(book, chapter - 1)
+                ];
+            }
+
+            let previousBook = books[bookId - 1];
+
+            if (previousBook !== undefined) {
+                let previousChapterValue = 0;
+
+                if (previousBook.numChapters > 0) {
+                    previousChapterValue = previousBook.numChapters;
+                }
+
+                return [
+                    previousBook.id,
+                    previousChapterValue,
+                    titleForBookChapter(previousBook, previousChapterValue)
+                ];
+            }
+        }
+    }
 
     testGeoplaces = function () {
         const similar = function (number1, number2) {
@@ -372,6 +471,16 @@ const Scriptures = (function () {
         ]);
     };
 
+    titleForBookChapter = function (book, chapter) {
+        if (book !== undefined) {
+            if (chapter > 0) {
+                return `${book.tocName} ${chapter}`;
+            }
+
+            return book.tocName;
+        }
+    };
+
     volumesGridContent = function (volumeId) {
         let gridContent = '';
 
@@ -386,7 +495,7 @@ const Scriptures = (function () {
             }
         });
 
-        return gridContent;
+        return gridContent + BOTTOM_PADDING;
     };
 
     /*-------------------------------------------------------
