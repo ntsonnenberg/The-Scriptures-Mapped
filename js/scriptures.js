@@ -90,6 +90,7 @@ const Scriptures = (function () {
     let testGeoplaces;
     let titleForBookChapter;
     let volumesGridContent;
+    let zoomOnMarker;
 
      /*-------------------------------------------------------
      *                   PRIVATE METHODS
@@ -252,7 +253,7 @@ const Scriptures = (function () {
 
     getScripturesCallback = function (chapterHtml) {
         document.getElementById(DIV_SCRIPTURES).innerHTML = chapterHtml;
-        setupMarkers()
+        setupMarkers();
     };
 
     getScripturesFailure = function () {
@@ -449,7 +450,7 @@ const Scriptures = (function () {
     };
 
     panToMarker = function (latitude, longitude) {
-
+        map.panTo({lat: Number(latitude), lng: Number(longitude)});
     };
 
     previousChapter = function (bookId, chapter) {
@@ -487,14 +488,19 @@ const Scriptures = (function () {
             clearMarkers();
         }
 
+        let placename;
+        let latitude;
+        let longitude;
+        let flag;
+
         document.querySelectorAll("a[onclick^=\"showLocation(\"]").forEach(function (element) {
             let matches = LAT_LON_PARSER.exec(element.getAttribute("onclick"));
 
             if (matches) {
-                let placename = matches[INDEX_PLACENAME];
-                let latitude = matches[INDEX_LATITUDE];
-                let longitude = matches[INDEX_LONGITUDE];
-                let flag = matches[INDEX_FLAG];
+                placename = matches[INDEX_PLACENAME];
+                latitude = matches[INDEX_LATITUDE];
+                longitude = matches[INDEX_LONGITUDE];
+                flag = matches[INDEX_FLAG];
 
                 if (flag !== "") {
                     placename = `${placename} ${flag}`;
@@ -503,12 +509,20 @@ const Scriptures = (function () {
                 addMarker(placename, latitude, longitude);
             }
         });
+
+        if (gmMarkers.length === 1) {
+            panToMarker(latitude, longitude)
+        }
+        
     };
 
     showLocation = function (geotagId, placename, latitude, longitude, viewLatitude, viewLongitude, viewTilt, viewRoll, viewAltitude, viewHeading) {
         clearMarkers();
         addMarker(placename, latitude, longitude);
-        console.log(placename, latitude, longitude, geotagId, viewLatitude, viewLongitude, viewTilt, viewRoll, viewAltitude, viewHeading);
+        console.log(viewAltitude);
+
+        panToMarker(latitude, longitude);
+        zoomOnMarker();
     }
 
     testGeoplaces = function () {
@@ -588,6 +602,10 @@ const Scriptures = (function () {
         });
 
         return gridContent + BOTTOM_PADDING;
+    };
+
+    zoomOnMarker = function () {
+        map.setZoom(10);
     };
 
     /*-------------------------------------------------------
