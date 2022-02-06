@@ -31,9 +31,6 @@ const Scriptures = (function () {
     const CLASS_CHAPTER = 'chapter';
     const CLASS_BUTTON = 'btn';
     const CLASS_VOLUME = 'volume';
-    //const DIV_NAVIGATOR_HEADING = 'navheading';
-    //const DIV_NEXT_CHAPTER_NAVIGATOR = 'nextchap';
-    //const DIV_PREVIOUS_CHAPTER_NAVIGATOR ='prevchap';
     const DIV_SCRIPTURES = 'scriptures';
     const DIV_SCRIPTURES_NAVIGATOR = 'scripnav';
     const INDEX_FLAG = 11;
@@ -41,9 +38,11 @@ const Scriptures = (function () {
     const INDEX_LONGITUDE = 4;
     const INDEX_PLACENAME = 2;
     const LAT_LON_PARSER = /\((.*),'(.*)',(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),'(.*)'\)/;
+    const MULTIPLE_MARKER_ZOOM = 8;
     const REQUEST_GET = 'GET';
     const REQUEST_STATUS_OK = 200;
     const REQUEST_STATUS_ERROR = 400;
+    const SINGLE_MARKER_ZOOM = 11;
     const TAG_HEADER5 = 'h5';
     const URL_BASE = 'https://scriptures.byu.edu/';
     const URL_BOOKS = `${URL_BASE}mapscrip/model/books.php`;
@@ -109,6 +108,7 @@ const Scriptures = (function () {
                 position: {lat: Number(latitude), lng: Number(longitude)},
                 map,
                 title: placename,
+                label: placename,
                 animation: google.maps.Animation.DROP
             });
         
@@ -357,19 +357,6 @@ const Scriptures = (function () {
     };
 
     navigateChapter = function (bookId, chapter) {
-        /*let chapterHtml;
-        let book = books[bookId];
-
-        if (book !== undefined) {
-            chapterHtml = htmlDiv({
-                classKey: DIV_PREVIOUS_CHAPTER_NAVIGATOR,
-                content: titleForBookChapter(book, chapter - 1)
-            }) + htmlDiv({
-                classKey: DIV_NEXT_CHAPTER_NAVIGATOR,
-                content: titleForBookChapter(book, chapter + 1)
-            });
-        }*/
-
         ajax(encodedScripturesUrlParameters(bookId, chapter), getScripturesCallback, getScripturesFailure, true);
     };
 
@@ -513,7 +500,6 @@ const Scriptures = (function () {
         if (gmMarkers.length === 1) {
             panToMarker(latitude, longitude)
         }
-        
     };
 
     showLocation = function (geotagId, placename, latitude, longitude, viewLatitude, viewLongitude, viewTilt, viewRoll, viewAltitude, viewHeading) {
@@ -522,7 +508,7 @@ const Scriptures = (function () {
         console.log(viewAltitude);
 
         panToMarker(latitude, longitude);
-        zoomOnMarker();
+        zoomOnMarker(SINGLE_MARKER_ZOOM);
     }
 
     testGeoplaces = function () {
@@ -604,8 +590,8 @@ const Scriptures = (function () {
         return gridContent + BOTTOM_PADDING;
     };
 
-    zoomOnMarker = function () {
-        map.setZoom(10);
+    zoomOnMarker = function (zoomValue) {
+        map.setZoom(zoomValue);
     };
 
     /*-------------------------------------------------------
