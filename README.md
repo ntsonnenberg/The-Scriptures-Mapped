@@ -8,4 +8,4 @@ Project 1 for IS 542 - Web Dev
 
 ## What I learned - Project 1
 
-### There were definitely a lot of struggles during this project but I finally completed it. The hardest part was trying to integrate the Google Maps Javascript API into the code, especially when trying to pan and zoom to various markers that would appear in a chapter. I'm proud of the work I put in for the project. I think there is still a lot more to learn and this project really opened my eyes on how complex web development can be. 
+### There were definitely a lot of struggles during this project but I finally completed it. The hardest part was trying to integrate the Google Maps Javascript API into the code, especially when trying to pan and zoom to various markers that would appear in a chapter. I'm proud of the work I put in for the project. I think there is still a lot more to learn and this project really opened my eyes on how complex web development can be. Another part that was extremely difficult was being able to display the next chapter and previous chapters as tags within the html that was being displayed on the screen.
