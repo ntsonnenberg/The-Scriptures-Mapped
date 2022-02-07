@@ -1,4 +1,3 @@
-
 /*========================================================
  * FILE: scriptures.js
  * AUTHOR: Nathan Sonnenberg
