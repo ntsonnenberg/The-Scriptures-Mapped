@@ -230,13 +230,13 @@ div.text {
 	background-color: white;
 	padding-bottom: 3rem;
 
-	animation-name: slideleft;
+	/* animation-name: slideleft;
 	animation-duration: 3s;
 	animation-delay: 0.3s;
-	animation-direction: alternate;
+	animation-direction: alternate; */
 }
 
-@keyframes slideleft {
+/* @keyframes slideleft {
 	from {
 		margin-left: 0%;
 	}
@@ -244,7 +244,7 @@ div.text {
 	to {
 		margin-right: 100%;
 	}
-}
+} */
 
 div.chapterheading {
 	font-size: 14pt;

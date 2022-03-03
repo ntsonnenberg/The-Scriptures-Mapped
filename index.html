@@ -35,6 +35,8 @@
         <div id="scriptures"></div>
         <div id="map"></div>
     </div>
+
+    <script src="./js/jquery-3.6.0.js"></script>
     
     <script src="js/scriptures.js" type="text/javascript"></script>
 
@@ -61,6 +63,66 @@
             Scriptures.init(() => { Scriptures.onHashChanged(); });
             showLocation = Scriptures.showLocation;
             window.addEventListener("hashchange", Scriptures.onHashChanged);
+
+            $(function () {
+                // when DOM tree ready, set up three click handlers
+
+                // Constants
+                const ANIMATION_DURATION = 350;
+                const POSITION_BEHIND_MAP = "100%";
+                const POSITION_OFFSCREEN_LEFT = "-100%";
+                const POSITION_VISIBLE = "0px";
+                const OPAQUE = 1;
+                const TRANSPARENT = 0;
+
+                // Private variables
+                let visibleDiv = $("scripturecontent");
+                let invisibleDiv = $("scripturecontent");
+
+                // Helper methods
+                const swapDivs = function () {
+                    let temp = visibleDiv;
+
+                    visibleDiv = invisibleDiv;
+                    invisibleDiv = temp;
+                };
+
+                const slideFromRight = function () {
+                    // Make sure off-screen div is in the right spot
+                    invisibleDiv.css({left: POSITION_BEHIND_MAP, opacity: OPAQUE});
+
+                    // Run the animation
+                    invisibleDiv.animate({left: POSITION_VISIBLE}, ANIMATION_DURATION);
+                    visibleDiv.animate({left: POSITION_OFFSCREEN_LEFT}, ANIMATION_DURATION, swapDivs);
+                };
+
+                const slideFromLeft = function () {
+                    // Make sure off-screen div is in the right spot
+                    invisibleDiv.css({left: POSITION_OFFSCREEN_LEFT, opacity: OPAQUE});
+
+                    // Run the animation
+                    invisibleDiv.animate({left: POSITION_VISIBLE}, ANIMATION_DURATION);
+                    visibleDiv.animate({left: POSITION_BEHIND_MAP}, ANIMATION_DURATION, swapDivs);
+                };
+
+                // Click handlers
+                visibleDiv.click(slideFromRight);
+                invisibleDiv.click(slideFromLeft);
+
+                $(".map").click(function () {
+                    // make sure invisible div is in the right spot
+                    invisibleDiv.css({left: POSITION_VISIBLE, opacity: TRANSPARENT});
+
+                    const hideIfTransparent = function () {
+                        swapDivs();
+
+                        invisibleDiv.css({left: POSITION_OFFSCREEN_LEFT});
+                    }
+                    // Cross-fade the divs
+                    visibleDiv.animate({opacity: TRANSPARENT}, ANIMATION_DURATION);
+                    invisibleDiv.animate({opacity: OPAQUE}, ANIMATION_DURATION, hideIfTransparent);
+                });
+            });
         });
     </script>
 </body>
