@@ -85,7 +85,7 @@ div.subtitle {
 	height: 100%;
 	min-height: 100%;
 	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-y: visible;
 	border-right: 1px solid #aaa;
 	position: relative;
 }
@@ -229,6 +229,21 @@ div.text {
 	font-weight: normal;
 	background-color: white;
 	padding-bottom: 3rem;
+
+	animation-name: slideleft;
+	animation-duration: 3s;
+	animation-delay: 0.3s;
+	animation-direction: alternate;
+}
+
+@keyframes slideleft {
+	from {
+		margin-left: 0%;
+	}
+
+	to {
+		margin-right: 100%;
+	}
 }
 
 div.chapterheading {

@@ -352,6 +352,13 @@ const Scriptures = (function () {
 			element.innerHTML += `<div class="nextprev">${requestedNextPrevious}</div>`;
 		});
 
+		let scripWrapper = document.getElementsByClassName("scripturewrapper")[0];
+		console.log(scripWrapper);
+
+		scripWrapper.addEventListener("animationstart");
+		scripWrapper.addEventListener("animationend");
+		scripWrapper.addEventListener("animationiteration");
+
 		injectBreadcrumbs(volumeForId(book.parentBookId), book, requestedChapter);
 		setupMarkers();
 	};
