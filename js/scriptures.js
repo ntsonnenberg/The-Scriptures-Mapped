@@ -33,6 +33,7 @@ const Scriptures = (function () {
 	const CLASS_VOLUME = "volume";
 	const DIV_BREADCRUMBS = "crumbs";
 	const DIV_SCRIPTURES = "scriptures";
+	const DIV_SCRIPTURES_CONTAINER_CLASS = "scripcontainer";
 	const DIV_SCRIPTURES_NAVIGATOR = "scripnav";
 	const ICON_NEXT = ">";
 	const ICON_PREVIOUS = "<";
@@ -346,18 +347,17 @@ const Scriptures = (function () {
 	getScripturesCallback = function (chapterHtml) {
 		let book = books[requestedBookId];
 
-		document.getElementById(DIV_SCRIPTURES).innerHTML = chapterHtml;
+		document.getElementById(DIV_SCRIPTURES).innerHTML = htmlDiv({
+			id: `${requestedBookId}:${requestedChapter}`,
+			classKey: DIV_SCRIPTURES_CONTAINER_CLASS,
+			content: chapterHtml,
+		});
+
+		//document.getElementById(DIV_SCRIPTURES).innerHTML = chapterHtml;
 
 		document.querySelectorAll(".navheading").forEach(function (element) {
 			element.innerHTML += `<div class="nextprev">${requestedNextPrevious}</div>`;
 		});
-
-		// let scripWrapper = document.getElementsByClassName("scripturewrapper")[0];
-		// console.log(scripWrapper);
-
-		// scripWrapper.addEventListener("animationstart");
-		// scripWrapper.addEventListener("animationend");
-		// scripWrapper.addEventListener("animationiteration");
 
 		injectBreadcrumbs(volumeForId(book.parentBookId), book, requestedChapter);
 		setupMarkers();

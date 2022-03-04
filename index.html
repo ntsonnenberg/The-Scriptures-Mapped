@@ -76,8 +76,9 @@
                 const TRANSPARENT = 0;
 
                 // Private variables
-                let visibleDiv = $("scripturecontent");
+                let visibleDiv = $(`${Scriptures.onHashChanged.bookId}:${Scriptures.onHashChanged.chapterId}`);
                 let invisibleDiv = $("scripturecontent");
+                console.log(visibleDiv);
 
                 // Helper methods
                 const swapDivs = function () {
